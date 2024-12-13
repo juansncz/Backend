@@ -44,18 +44,54 @@ const login = async (req, res) => {
             return res.status(400).json({ error: 'Invalid Credentials' });
         }
 
-        // Create a JWT token and send it as a response
-        const token = jwt.sign(
+        // Create access and refresh tokens
+        const accessToken = jwt.sign(
             { user_id: user.user_id, username: user.username },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }
         );
 
-        res.json({ token });
+        const refreshToken = jwt.sign(
+            { user_id: user.user_id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME }
+        );
+
+        // Return both tokens to the client
+        res.json({ accessToken, refreshToken });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Refresh the access token using a refresh token
+const refreshToken = async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(401).json({ error: 'Refresh token required.' });
+    }
+
+    try {
+        // Verify the refresh token
+        jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(403).json({ error: 'Invalid or expired refresh token.' });
+            }
+
+            // Generate a new access token
+            const accessToken = jwt.sign(
+                { user_id: decoded.user_id, username: decoded.username },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }
+            );
+
+            res.json({ accessToken }); // Return the new access token
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
 // Export the functions for use in the routes
-module.exports = { register, login };
+module.exports = { register, login, refreshToken };
