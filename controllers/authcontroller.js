@@ -18,7 +18,8 @@ const register = async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error registering user:", err);  // Added better error logging
+        res.status(500).json({ error: 'Server error: Unable to register user' });
     }
 };
 
@@ -43,19 +44,20 @@ const login = async (req, res) => {
         // Create both access token and refresh token
         const accessToken = jwt.sign(
             { user_id: user.user_id, username: user.username },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }
+            process.env.JWT_SECRET,  // Using environment variable for the secret key
+            { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }  // Using expiration time from .env
         );
 
         const refreshToken = jwt.sign(
             { user_id: user.user_id, username: user.username },
-            process.env.JWT_SECRET_REFRESH,
-            { expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME }
+            process.env.JWT_SECRET_REFRESH,  // Separate secret for refresh token
+            { expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME }  // Expiration time for refresh token from .env
         );
 
         res.json({ accessToken, refreshToken });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error during login:", err);  // Error logging improved
+        res.status(500).json({ error: 'Server error: Unable to login' });
     }
 };
 
@@ -70,15 +72,16 @@ const refreshToken = async (req, res) => {
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH);
 
-        // Generate new access token if refresh token is valid
+        // Generate a new access token if the refresh token is valid
         const newAccessToken = jwt.sign(
             { user_id: decoded.user_id, username: decoded.username },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }
+            process.env.JWT_SECRET,  // Using the main JWT secret
+            { expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME }  // Expiration time for access token
         );
 
         res.json({ accessToken: newAccessToken });
     } catch (err) {
+        console.error("Error during refresh token:", err);  // Better error logging
         return res.status(403).json({ error: 'Invalid or expired refresh token' });
     }
 };
