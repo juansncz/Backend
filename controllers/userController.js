@@ -43,17 +43,31 @@ const updateUser = async (req, res) => {
   const { fullname, username, password } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const [result] = await pool.query('UPDATE users SET fullname = ?, username = ?, password = ? WHERE user_id = ?', [fullname, username, hashedPassword, id]);
+    let query = 'UPDATE users SET fullname = ?, username = ?';
+    let queryParams = [fullname, username];
 
-    if (result.affectedRows === 0)
+    // Only update password if it's provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      query += ', password = ?';
+      queryParams.push(hashedPassword);
+    }
+
+    query += ' WHERE user_id = ?';
+    queryParams.push(id);
+
+    const [result] = await pool.query(query, queryParams);
+
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
+    }
 
     res.json({ message: 'User updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
