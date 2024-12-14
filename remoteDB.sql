@@ -1,6 +1,6 @@
-CREATE DATABASE sql12736663;
+CREATE DATABASE defaultdb;
 
-USE sql12736663;
+USE defaultdb;
 
 SHOW TABLES;
 
@@ -14,11 +14,11 @@ CREATE TABLE users (
 );
 
 CREATE TABLE departments (
-	dept_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    dept_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     dept_code VARCHAR(255) NOT NULL,
     dept_name VARCHAR(255) NOT NULL,
-	user_id INT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users,
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -31,7 +31,7 @@ CREATE TABLE courses (
     dept_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
 );
 
@@ -44,11 +44,9 @@ CREATE TABLE students (
     course_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
-
-
 
 SELECT * FROM users;
 SELECT * FROM departments;
@@ -60,9 +58,9 @@ DESC departments;
 DESC courses;
 DESC students;
 
-drop table users;
-drop table departments;
-drop table courses;
-drop table students;
+DROP TABLE users;
+DROP TABLE departments;
+DROP TABLE courses;
+DROP TABLE students;
 
-drop database sql12736663;
+DROP DATABASE defaultdb;
