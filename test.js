@@ -5,9 +5,9 @@ const cors = require('cors');
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const departmentRoutes = require('./routes/departmentRoutes');
-const courseRoutes = require('./routes/courseRoutes');
-const studentRoutes = require('./routes/studentRoutes');
+const conversationsRoutes = require('./routes/conversationsRoutes'); // Updated
+const messageRoutes = require('./routes/messageRoutes');             // Updated
+const contactsRoutes = require('./routes/contactsRoutes');          // Updated
 
 // Load environment variables from .env file
 dotenv.config();
@@ -20,11 +20,11 @@ app.use(cors());
 app.use(express.json());
 
 // Define routes
-app.use('/api/auth', authRoutes);            // Authentication routes (login/register)
-app.use('/api/users', userRoutes);           // User management routes
-app.use('/api/departments', departmentRoutes); // Department-related routes
-app.use('/api/courses', courseRoutes);       // Course-related routes
-app.use('/api/students', studentRoutes);     // Student-related routes
+app.use('/api/auth', authRoutes);               // Authentication routes (login/register)
+app.use('/api/users', userRoutes);              // User management routes
+app.use('/api/conversations', conversationsRoutes); // Updated
+app.use('/api/messages', messageRoutes);            // Updated
+app.use('/api/contacts', contactsRoutes);           // Updated
 
 // Basic test route to check server functionality
 app.get('/', (req, res) => {
