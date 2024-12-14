@@ -11,3 +11,4 @@ router.put('/:id', authenticateToken, updateUser);
 router.delete('/:id', authenticateToken, deleteUser);
 
 module.exports = router;
+
