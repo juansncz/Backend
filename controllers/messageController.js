@@ -6,9 +6,9 @@ const getAllMessages = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT m.message_id, m.conversation_id, m.user_id, u.fullname, m.message, m.created_at ' +
+      'SELECT m.message_id, m.conversation_id, m.sender_id, u.fullname, m.message, m.created_at ' +
       'FROM messages m ' +
-      'JOIN users u ON u.user_id = m.user_id ' +
+      'JOIN users u ON u.sender_id = m.sender_id ' +
       'WHERE m.conversation_id = ? ORDER BY m.created_at DESC',
       [conversation_id]
     );
@@ -24,9 +24,9 @@ const getMessageById = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT message_id, conversation_id, user_id, fullname, message, created_at ' +
+      'SELECT message_id, conversation_id, sender_id, fullname, message, created_at ' +
       'FROM messages m ' +
-      'JOIN users u ON u.user_id = m.user_id ' +
+      'JOIN users u ON u.sender_id = m.sender_id ' +
       'WHERE m.message_id = ?',
       [id]
     );
@@ -43,22 +43,22 @@ const getMessageById = async (req, res) => {
 
 // Create a new message in a conversation
 const createMessage = async (req, res) => {
-  const { conversation_id, user_id, message } = req.body;
+  const { conversation_id, sender_id, message } = req.body;
 
   // Check if all required fields are provided
-  if (!conversation_id || !user_id || !message) {
-    return res.status(400).json({ error: 'All fields (conversation_id, user_id, message) are required.' });
+  if (!conversation_id || !sender_id || !message) {
+    return res.status(400).json({ error: 'All fields (conversation_id, sender_id, message) are required.' });
   }
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO messages (conversation_id, user_id, message) VALUES (?, ?, ?)',
-      [conversation_id, user_id, message]
+      'INSERT INTO messages (conversation_id, sender_id, message) VALUES (?, ?, ?)',
+      [conversation_id, sender_id, message]
     );
     res.status(201).json({
       message_id: result.insertId,
       conversation_id,
-      user_id,
+      sender_id,
       message,
     });
   } catch (err) {
