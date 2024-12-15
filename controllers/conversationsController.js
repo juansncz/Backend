@@ -63,6 +63,26 @@ const createConversation = async (req, res) => {
   }
 };
 
+// Send a message in a conversation
+const sendMessage = async (req, res) => {
+  const { conversation_id, sender_id, message } = req.body;
+
+  // Validate required fields
+  if (!conversation_id || !sender_id || !message) {
+    return res.status(400).json({ error: 'conversation_id, sender_id, and message are required.' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO messages (conversation_id, sender_id, message) VALUES (?, ?, ?)',
+      [conversation_id, sender_id, message]
+    );
+    res.status(201).json({ message_id: result.insertId, conversation_id, sender_id, message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // Delete a conversation by ID
 const deleteConversation = async (req, res) => {
   const { id } = req.params;
@@ -84,5 +104,6 @@ module.exports = {
   getAllConversations,
   getConversationById,
   createConversation,
+  sendMessage, // Exported new function
   deleteConversation,
 };
