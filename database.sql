@@ -1,6 +1,6 @@
-CREATE DATABASE Sanchez;
+CREATE DATABASE defaultdb;
 
-USE Sanchez;
+USE defaultdb;
 
 SHOW TABLES;
 
@@ -9,58 +9,60 @@ CREATE TABLE users (
     fullname VARCHAR(100) NOT NULL,
     username VARCHAR(100) NOT NULL UNIQUE KEY,
     password VARCHAR(100) NOT NULL,
+    avatar_url VARCHAR(255) DEFAULT NULL, -- Profile picture URL (optional)
+    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE departments (
-	dept_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    dept_code VARCHAR(255) NOT NULL,
-    dept_name VARCHAR(255) NOT NULL,
-	user_id INT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 
-CREATE TABLE courses (
-    course_id INT PRIMARY KEY AUTO_INCREMENT,
-    course_name VARCHAR(255),
-    course_code VARCHAR(255),
-    user_id INT,
-    dept_id INT,
+CREATE TABLE conversations (
+    conversation_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_1_id INT NOT NULL, 
+    user_2_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users,
-    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+    FOREIGN KEY (user_1_id) REFERENCES users(user_id),
+    FOREIGN KEY (user_2_id) REFERENCES users(user_id)
 );
 
-CREATE TABLE students (
-    student_id INT AUTO_INCREMENT PRIMARY KEY,
-    lname VARCHAR(255),
-    fname VARCHAR(255),
-    mname VARCHAR(255),
-    user_id INT,
-    course_id INT,
+
+
+
+CREATE TABLE messages (
+    message_id INT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id INT NOT NULL, 
+    sender_id INT NOT NULL,
+    message_text TEXT NOT NULL,
+    message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id),
+    FOREIGN KEY (sender_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE contacts (
+    contact_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,  -- The user who adds a contact
+    contact_user_id INT NOT NULL,  -- The user being added as a contact
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users,
-    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (contact_user_id) REFERENCES users(user_id)
 );
 
-
+SHOW TABLES;
 
 SELECT * FROM users;
-SELECT * FROM departments;
-SELECT * FROM courses;
-SELECT * FROM students;
+SELECT * FROM conversations;
+SELECT * FROM messages;
+SELECT * FROM contacts;
 
 DESC users;
-DESC departments;
-DESC courses;
-DESC students;
+DESC conversations;
+DESC messages;
+DESC contacts;
 
-drop table users;
-drop table departments;
-drop table courses;
-drop table students;
+DROP TABLE users;
+DROP TABLE conversations;
+DROP TABLE messages;
+DROP TABLE contacts;
+
+DROP DATABASE defaultdb;

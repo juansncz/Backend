@@ -5,9 +5,9 @@ const cors = require('cors');
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const conversationsRoutes = require('./routes/conversationsRoutes'); // Updated
-const messageRoutes = require('./routes/messageRoutes');             // Updated
-const contactsRoutes = require('./routes/contactsRoutes');          // Updated
+const conversationsRoutes = require('./routes/conversationsRouter'); // Correct naming convention for router files
+const messageRoutes = require('./routes/messageRouter');             // Correct naming convention for router files
+const contactsRoutes = require('./routes/contactsRouter');           // Correct naming convention for router files
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,22 +19,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Define routes
+// Define API routes
 app.use('/api/auth', authRoutes);               // Authentication routes (login/register)
 app.use('/api/users', userRoutes);              // User management routes
-app.use('/api/conversations', conversationsRoutes); // Updated
-app.use('/api/messages', messageRoutes);            // Updated
-app.use('/api/contacts', contactsRoutes);           // Updated
+app.use('/api/conversations', conversationsRoutes); // Conversations routes
+app.use('/api/messages', messageRoutes);            // Messages routes
+app.use('/api/contacts', contactsRoutes);           // Contacts routes
 
-// Basic test route to check server functionality
+// Test route to check server functionality
 app.get('/', (req, res) => {
-    res.send('Server is running. Welcome to the API!');
+    res.status(200).send('Server is running. Welcome to the API!');
 });
 
-// Set port from environment variables or default to 3000 (adjusted)
+// Set port from environment variables or default to 5000
 const PORT = process.env.PORT || 5000;
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
