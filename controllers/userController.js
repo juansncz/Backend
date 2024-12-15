@@ -32,13 +32,11 @@ const createUser = async (req, res) => {
   const { fullname, username, password, avatar_url } = req.body;
 
   try {
-    // Check if username is already taken
     const [existingUser] = await pool.query('SELECT user_id FROM users WHERE username = ?', [username]);
     if (existingUser.length > 0) {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
-    // Hash password and insert user into the database
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query('INSERT INTO users (fullname, username, password, avatar_url) VALUES (?, ?, ?, ?)', [fullname, username, hashedPassword, avatar_url || null]);
 
@@ -114,7 +112,6 @@ const searchUserByUsername = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Return the user_id if user is found
     res.json({ user_id: rows[0].user_id });
   } catch (err) {
     console.error("Error searching for user by username:", err);
@@ -124,17 +121,15 @@ const searchUserByUsername = async (req, res) => {
 
 // Add a contact
 const addContact = async (req, res) => {
-  const { user_id, contact_user_id } = req.body;  // Get the user_id and contact_user_id from the request body
+  const { user_id, contact_user_id } = req.body;
 
   try {
-    // Check if both users exist
     const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id IN (?, ?)', [user_id, contact_user_id]);
 
     if (userRows.length < 2) {
       return res.status(404).json({ error: 'One or both users not found' });
     }
 
-    // Check if the contact already exists
     const [contactExists] = await pool.query(
       'SELECT * FROM contacts WHERE (user_id = ? AND contact_user_id = ?) OR (user_id = ? AND contact_user_id = ?)',
       [user_id, contact_user_id, contact_user_id, user_id]
@@ -144,7 +139,6 @@ const addContact = async (req, res) => {
       return res.status(400).json({ error: 'Contact already exists' });
     }
 
-    // Add the contact
     await pool.query('INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)', [user_id, contact_user_id]);
     res.status(201).json({ message: 'Contact added successfully' });
   } catch (err) {
