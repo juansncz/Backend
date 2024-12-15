@@ -32,8 +32,16 @@ const createUser = async (req, res) => {
   const { fullname, username, password, avatar_url } = req.body;
 
   try {
+    // Check if username is already taken
+    const [existingUser] = await pool.query('SELECT user_id FROM users WHERE username = ?', [username]);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    // Hash password and insert user into the database
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query('INSERT INTO users (fullname, username, password, avatar_url) VALUES (?, ?, ?, ?)', [fullname, username, hashedPassword, avatar_url || null]);
+
     res.status(201).json({ id: result.insertId, fullname, username, avatar_url });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -121,7 +129,7 @@ const addContact = async (req, res) => {
   try {
     // Check if both users exist
     const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id IN (?, ?)', [user_id, contact_user_id]);
-    
+
     if (userRows.length < 2) {
       return res.status(404).json({ error: 'One or both users not found' });
     }
@@ -131,7 +139,7 @@ const addContact = async (req, res) => {
       'SELECT * FROM contacts WHERE (user_id = ? AND contact_user_id = ?) OR (user_id = ? AND contact_user_id = ?)',
       [user_id, contact_user_id, contact_user_id, user_id]
     );
-    
+
     if (contactExists.length > 0) {
       return res.status(400).json({ error: 'Contact already exists' });
     }
