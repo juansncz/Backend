@@ -1,7 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const { User } = require('./models'); // Assuming User model exists in 'models'
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
