@@ -51,6 +51,17 @@ const createContact = async (req, res) => {
   }
 
   try {
+    // Check if contact already exists between the user and the contact user
+    const [existingContact] = await pool.query(
+      'SELECT * FROM contacts WHERE user_id = ? AND contact_user_id = ?',
+      [user_id, contact_user_id]
+    );
+
+    if (existingContact.length > 0) {
+      return res.status(400).json({ error: 'This contact already exists.' });
+    }
+
+    // Insert the new contact into the contacts table
     const [result] = await pool.query(
       'INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)',
       [user_id, contact_user_id]
