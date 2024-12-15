@@ -25,6 +25,7 @@ app.use('/api/users', userRoutes);              // User management routes
 app.use('/api/conversations', conversationsRoutes); // Conversations routes
 app.use('/api/messages', messageRoutes);            // Messages routes
 app.use('/api/contacts', contactsRoutes);           // Contacts routes
+app.use('/api/users', userRoutes);
 
 // Add /api/users/search route for searching a user by username
 app.get('/api/users/search', async (req, res) => {
