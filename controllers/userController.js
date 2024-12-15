@@ -91,7 +91,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Search for a user by username (new function)
+// Search for a user by username
 const searchUserByUsername = async (req, res) => {
   const { username } = req.query;
 
@@ -114,4 +114,42 @@ const searchUserByUsername = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, getUserById, createUser, updateUser, deleteUser, searchUserByUsername };
+// Add a contact
+const addContact = async (req, res) => {
+  const { user_id, contact_user_id } = req.body;  // Get the user_id and contact_user_id from the request body
+
+  try {
+    // Check if both users exist
+    const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id IN (?, ?)', [user_id, contact_user_id]);
+    
+    if (userRows.length < 2) {
+      return res.status(404).json({ error: 'One or both users not found' });
+    }
+
+    // Check if the contact already exists
+    const [contactExists] = await pool.query(
+      'SELECT * FROM contacts WHERE (user_id = ? AND contact_user_id = ?) OR (user_id = ? AND contact_user_id = ?)',
+      [user_id, contact_user_id, contact_user_id, user_id]
+    );
+    
+    if (contactExists.length > 0) {
+      return res.status(400).json({ error: 'Contact already exists' });
+    }
+
+    // Add the contact
+    await pool.query('INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)', [user_id, contact_user_id]);
+    res.status(201).json({ message: 'Contact added successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+  getAllUsers, 
+  getUserById, 
+  createUser, 
+  updateUser, 
+  deleteUser, 
+  searchUserByUsername,
+  addContact 
+};
