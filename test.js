@@ -5,9 +5,9 @@ const cors = require('cors');
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const conversationsRoutes = require('./routes/conversationsRouter'); // Correct naming convention for router files
-const messageRoutes = require('./routes/messageRouter');             // Correct naming convention for router files
-const contactsRoutes = require('./routes/contactsRouter');           // Correct naming convention for router files
+const conversationsRoutes = require('./routes/conversationsRoutes'); // Correct naming convention for router files
+const messageRoutes = require('./routes/messageRoutes');             // Correct naming convention for router files
+const contactsRoutes = require('./routes/contactsRoutes');           // Correct naming convention for router files
 
 // Load environment variables from .env file
 dotenv.config();
