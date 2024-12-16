@@ -40,40 +40,6 @@ const createUser = async (req, res) => {
   }
 };
 
-// Update user details
-const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const { fullname, username, password, avatar_url } = req.body;
-
-  try {
-    let query = 'UPDATE users SET fullname = ?, username = ?';
-    let queryParams = [fullname, username];
-
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      query += ', password = ?';
-      queryParams.push(hashedPassword);
-    }
-
-    if (avatar_url !== undefined) {
-      query += ', avatar_url = ?';
-      queryParams.push(avatar_url);
-    }
-
-    query += ' WHERE user_id = ?';
-    queryParams.push(id);
-
-    const [result] = await pool.query(query, queryParams);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'User updated successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 // Delete a user
 const deleteUser = async (req, res) => {
