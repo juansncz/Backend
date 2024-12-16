@@ -51,21 +51,20 @@ const createUser = async (req, res) => {
 // Delete a user and their associated conversations
 const deleteUser = async (req, res) => {
   const { id } = req.params;
+  console.log("Attempting to delete user with ID:", id);  // Log the id to debug
 
   try {
-    // Delete the user
     const [result] = await pool.query('DELETE FROM users WHERE user_id = ?', [id]);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
-    console.error("Error deleting user:", err);
+    console.error("Error deleting user:", err);  // More verbose logging
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
