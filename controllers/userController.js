@@ -86,9 +86,6 @@ const deleteUser = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Delete dependent conversations first
-    await pool.query('DELETE FROM conversations WHERE user_2_id = ?', [id]);
-
     // Delete the user
     const [result] = await pool.query('DELETE FROM users WHERE user_id = ?', [id]);
 
@@ -96,11 +93,13 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: 'User and dependencies deleted successfully' });
+    res.json({ message: 'User deleted successfully' });
   } catch (err) {
+    console.error("Error deleting user:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Search for a user by username
 const searchUserByUsername = async (req, res) => {
