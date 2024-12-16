@@ -44,4 +44,5 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { updateUser }; // Ensure to export properly
+// Ensure all necessary methods are exported, including updateUser
+module.exports = { updateUser }; 
