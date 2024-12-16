@@ -6,9 +6,12 @@ const jwt = require('jsonwebtoken');
 const getAllUsers = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT user_id, fullname, username, avatar_url, created_at, updated_at FROM users');
-    res.json(rows);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No users found' });
+    }
+    res.json({ success: true, data: rows });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 };
 
@@ -21,9 +24,9 @@ const getUserById = async (req, res) => {
 
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
-    res.json(rows[0]);
+    res.json({ success: true, data: rows[0] });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 };
 
@@ -32,6 +35,10 @@ const createUser = async (req, res) => {
   const { fullname, username, password, avatar_url } = req.body;
 
   try {
+    if (!fullname || !username || !password) {
+      return res.status(400).json({ error: 'Fullname, username, and password are required' });
+    }
+
     // Check if username is already taken
     const [existingUser] = await pool.query('SELECT user_id FROM users WHERE username = ?', [username]);
     if (existingUser.length > 0) {
@@ -42,9 +49,9 @@ const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query('INSERT INTO users (fullname, username, password, avatar_url) VALUES (?, ?, ?, ?)', [fullname, username, hashedPassword, avatar_url || null]);
 
-    res.status(201).json({ id: result.insertId, fullname, username, avatar_url });
+    res.status(201).json({ success: true, message: 'User created successfully', data: { id: result.insertId, fullname, username, avatar_url } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 };
 
@@ -77,9 +84,9 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: 'User updated successfully' });
+    res.json({ success: true, message: 'User updated successfully' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 };
 
@@ -93,9 +100,9 @@ const deleteUser = async (req, res) => {
     if (result.affectedRows === 0)
       return res.status(404).json({ error: 'User not found' });
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ success: true, message: 'User deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 };
 
@@ -115,26 +122,23 @@ const searchUserByUsername = async (req, res) => {
     }
 
     // Return the user_id if user is found
-    res.json({ user_id: rows[0].user_id });
+    res.json({ success: true, data: { user_id: rows[0].user_id } });
   } catch (err) {
-    console.error("Error searching for user by username:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", details: err.message });
   }
 };
 
 // Add a contact
 const addContact = async (req, res) => {
-  const { user_id, contact_user_id } = req.body;  // Get the user_id and contact_user_id from the request body
+  const { user_id, contact_user_id } = req.body;
 
   try {
-    // Check if both users exist
     const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id IN (?, ?)', [user_id, contact_user_id]);
 
     if (userRows.length < 2) {
       return res.status(404).json({ error: 'One or both users not found' });
     }
 
-    // Check if the contact already exists
     const [contactExists] = await pool.query(
       'SELECT * FROM contacts WHERE (user_id = ? AND contact_user_id = ?) OR (user_id = ? AND contact_user_id = ?)',
       [user_id, contact_user_id, contact_user_id, user_id]
@@ -144,9 +148,8 @@ const addContact = async (req, res) => {
       return res.status(400).json({ error: 'Contact already exists' });
     }
 
-    // Add the contact
     await pool.query('INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)', [user_id, contact_user_id]);
-    res.status(201).json({ message: 'Contact added successfully' });
+    res.status(201).json({ success: true, message: 'Contact added successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

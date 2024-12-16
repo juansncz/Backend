@@ -12,17 +12,25 @@ const authenticateToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// Existing routes
+// Get all users - Requires authentication
 router.get('/', authenticateToken, getAllUsers);
+
+// Get a user by ID - Requires authentication
 router.get('/:id', authenticateToken, getUserById);
+
+// Create a new user - Requires authentication
 router.post('/', authenticateToken, createUser);
+
+// Update a user - Requires authentication
 router.put('/:id', authenticateToken, updateUser);
+
+// Delete a user - Requires authentication
 router.delete('/:id', authenticateToken, deleteUser);
 
-// New route for searching by username
+// Search for a user by username - Requires authentication
 router.get('/search', authenticateToken, searchUserByUsername);
 
-// New route for adding a contact
+// Add a contact to the user - Requires authentication
 router.post('/addContact', authenticateToken, addContact);
 
 module.exports = router;

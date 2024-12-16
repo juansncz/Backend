@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const morgan = require('morgan'); // Import for logging (optional but helpful)
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
@@ -15,9 +16,10 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
-// Middleware to handle CORS and JSON body parsing
+// Middleware to handle CORS, JSON body parsing, and logging
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));  // This will log requests to the console (in development mode)
 
 // Define API routes
 app.use('/api/auth', authRoutes);               // Authentication routes (login/register)
@@ -25,25 +27,6 @@ app.use('/api/users', userRoutes);              // User management routes
 app.use('/api/conversations', conversationsRoutes); // Conversations routes
 app.use('/api/messages', messageRoutes);            // Messages routes
 app.use('/api/contacts', contactsRoutes);           // Contacts routes
-
-// Add /api/users/search route for searching a user by username
-app.get('/api/users/search', async (req, res) => {
-    const { username } = req.query; // Get the username parameter from the query string
-    if (!username) {
-        return res.status(400).json({ error: 'Username is required' });
-    }
-
-    try {
-        const user = await User.findOne({ where: { username } }); // Find the user by username
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' }); // Return error if user is not found
-        }
-        res.status(200).json(user); // Return the user data if found
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' }); // Handle any internal server errors
-    }
-});
 
 // Test route to check server functionality
 app.get('/', (req, res) => {
