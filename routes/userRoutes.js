@@ -3,7 +3,6 @@ const {
   getAllUsers, 
   getUserById, 
   createUser, 
-  updateUser, 
   deleteUser, 
   searchUserByUsername 
 } = require('../controllers/userController');
@@ -15,7 +14,6 @@ const router = express.Router();
 router.get('/', authenticateToken, getAllUsers);         // Get all users
 router.get('/:id', authenticateToken, getUserById);      // Get a user by ID
 router.post('/', authenticateToken, createUser);         // Create a new user
-router.put('/:id', authenticateToken, updateUser);       // Update user details
 router.delete('/:id', authenticateToken, deleteUser);    // Delete a user
 
 // New route for searching by username with authentication middleware

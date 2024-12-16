@@ -80,4 +80,4 @@ const searchUserByUsername = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, getUserById, createUser, updateUser, deleteUser, searchUserByUsername };
+module.exports = { getAllUsers, getUserById, createUser, deleteUser, searchUserByUsername };
