@@ -2,19 +2,19 @@ const pool = require('../config/database');
 
 // Get all messages for a specific conversation
 const getAllMessages = async (req, res) => {
-  const { conversation_id } = req.params; // Capture conversation_id from request parameters
+  const { conversation_id } = req.params;  // Capture conversation_id from request parameters
 
   try {
     const [rows] = await pool.query(
-      'SELECT m.message_id, m.conversation_id, m.sender_id, u.fullname, m.message_text, m.message_time ' +
+      'SELECT m.message_id, m.conversation_id, m.sender_id, u.fullname, m.message, m.created_at ' +
       'FROM messages m ' +
-      'JOIN users u ON u.user_id = m.sender_id ' + 
-      'WHERE m.conversation_id = ? ORDER BY m.message_time ASC', // Order by time (ASC for chronological order)
+      'JOIN users u ON u.sender_id = m.sender_id ' +
+      'WHERE m.conversation_id = ? ORDER BY m.created_at DESC',
       [conversation_id]
     );
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve messages.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -24,70 +24,70 @@ const getMessageById = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT m.message_id, m.conversation_id, m.sender_id, u.fullname, m.message_text, m.message_time ' +
+      'SELECT message_id, conversation_id, sender_id, fullname, message, created_at ' +
       'FROM messages m ' +
-      'JOIN users u ON u.user_id = m.sender_id ' +
+      'JOIN users u ON u.sender_id = m.sender_id ' +
       'WHERE m.message_id = ?',
       [id]
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Message not found.' });
+      return res.status(404).json({ error: 'Message not found' });
     }
 
     res.json(rows[0]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve the message.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 // Create a new message in a conversation
 const createMessage = async (req, res) => {
-  const { conversation_id, sender_id, message_text } = req.body;
+  const { conversation_id, sender_id, message } = req.body;
 
-  if (!conversation_id || !sender_id || !message_text.trim()) {
-    return res.status(400).json({ error: 'All fields (conversation_id, sender_id, message_text) are required.' });
+  // Check if all required fields are provided
+  if (!conversation_id || !sender_id || !message) {
+    return res.status(400).json({ error: 'All fields (conversation_id, sender_id, message) are required.' });
   }
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO messages (conversation_id, sender_id, message_text) VALUES (?, ?, ?)',
-      [conversation_id, sender_id, message_text]
+      'INSERT INTO messages (conversation_id, sender_id, message) VALUES (?, ?, ?)',
+      [conversation_id, sender_id, message]
     );
     res.status(201).json({
       message_id: result.insertId,
       conversation_id,
       sender_id,
-      message_text,
-      message_time: new Date(), // Include message time for response
+      message,
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create message.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 // Update a message by ID
 const updateMessage = async (req, res) => {
   const { id } = req.params;
-  const { message_text } = req.body;
+  const { message } = req.body;
 
-  if (!message_text.trim()) {
-    return res.status(400).json({ error: 'Message text is required for update.' });
+  if (!message) {
+    return res.status(400).json({ error: 'Message content is required for update.' });
   }
 
   try {
     const [result] = await pool.query(
-      'UPDATE messages SET message_text = ? WHERE message_id = ?',
-      [message_text, id]
+      'UPDATE messages SET message = ? WHERE message_id = ?',
+      [message, id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Message not found.' });
+      return res.status(404).json({ error: 'Message not found' });
     }
 
-    res.json({ message: 'Message updated successfully.' });
+    res.json({ message: 'Message updated successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update message.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -99,19 +99,13 @@ const deleteMessage = async (req, res) => {
     const [result] = await pool.query('DELETE FROM messages WHERE message_id = ?', [id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Message not found.' });
+      return res.status(404).json({ error: 'Message not found' });
     }
 
-    res.json({ message: 'Message deleted successfully.' });
+    res.json({ message: 'Message deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete message.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = {
-  getAllMessages,
-  getMessageById,
-  createMessage,
-  updateMessage,
-  deleteMessage,
-};
+module.exports = { getAllMessages, getMessageById, createMessage, updateMessage, deleteMessage };

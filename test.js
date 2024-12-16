@@ -1,4 +1,3 @@
-
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -6,9 +5,9 @@ const cors = require('cors');
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const conversationsRoutes = require('./routes/conversationsRoutes'); // Correct naming convention for router files
-const messageRoutes = require('./routes/messageRoutes');             // Correct naming convention for router files
-const contactsRoutes = require('./routes/contactsRoutes');           // Correct naming convention for router files
+const conversationsRoutes = require('./routes/conversationsRoutes'); // Updated
+const messageRoutes = require('./routes/messageRoutes');             // Updated
+const contactsRoutes = require('./routes/contactsRoutes');          // Updated
 
 // Load environment variables from .env file
 dotenv.config();
@@ -20,22 +19,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Define API routes
+// Define routes
 app.use('/api/auth', authRoutes);               // Authentication routes (login/register)
 app.use('/api/users', userRoutes);              // User management routes
-app.use('/api/conversations', conversationsRoutes); // Conversations routes
-app.use('/api/messages', messageRoutes);            // Messages routes
-app.use('/api/contacts', contactsRoutes);           // Contacts routes
+app.use('/api/conversations', conversationsRoutes); // Updated
+app.use('/api/messages', messageRoutes);            // Updated
+app.use('/api/contacts', contactsRoutes);           // Updated
 
-// Test route to check server functionality
+// Basic test route to check server functionality
 app.get('/', (req, res) => {
-    res.status(200).send('Server is running. Welcome to the API!');
+    res.send('Server is running. Welcome to the API!');
 });
 
-// Set port from environment variables or default to 5000
+// Set port from environment variables or default to 3000 (adjusted)
 const PORT = process.env.PORT || 5000;
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
