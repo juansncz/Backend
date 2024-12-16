@@ -11,14 +11,14 @@ const authenticateToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// Existing routes
-router.get('/', authenticateToken, getAllUsers);
-router.get('/:id', authenticateToken, getUserById);
-router.post('/', authenticateToken, createUser);
-router.put('/:id', authenticateToken, updateUser);
-router.delete('/:id', authenticateToken, deleteUser);
+// Existing routes with authentication middleware
+router.get('/', authenticateToken, getAllUsers);         // Get all users
+router.get('/:id', authenticateToken, getUserById);      // Get a user by ID
+router.post('/', authenticateToken, createUser);         // Create a new user
+router.put('/:id', authenticateToken, updateUser);       // Update user details
+router.delete('/:id', authenticateToken, deleteUser);    // Delete a user
 
-// New route for searching by username
-router.get('/search', authenticateToken, searchUserByUsername);
+// New route for searching by username with authentication middleware
+router.get('/search', authenticateToken, searchUserByUsername);  
 
 module.exports = router;
