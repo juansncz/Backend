@@ -1,14 +1,14 @@
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const morgan = require('morgan'); // Import for logging (optional but helpful)
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const conversationsRoutes = require('./routes/conversationsRoutes');
-const messageRoutes = require('./routes/messageRoutes');
-const contactsRoutes = require('./routes/contactsRoutes');
+const conversationsRoutes = require('./routes/conversationsRoutes'); // Correct naming convention for router files
+const messageRoutes = require('./routes/messageRoutes');             // Correct naming convention for router files
+const contactsRoutes = require('./routes/contactsRoutes');           // Correct naming convention for router files
 
 // Load environment variables from .env file
 dotenv.config();
@@ -16,10 +16,9 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
-// Middleware to handle CORS, JSON body parsing, and logging
+// Middleware to handle CORS and JSON body parsing
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));  // This will log requests to the console (in development mode)
 
 // Define API routes
 app.use('/api/auth', authRoutes);               // Authentication routes (login/register)
