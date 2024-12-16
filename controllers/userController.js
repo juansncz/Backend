@@ -46,40 +46,7 @@ const createUser = async (req, res) => {
   }
 };
 
-// Update user details
-const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const { fullname, username, password, avatar_url } = req.body;
 
-  try {
-    let query = 'UPDATE users SET fullname = ?, username = ?';
-    let queryParams = [fullname, username];
-
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      query += ', password = ?';
-      queryParams.push(hashedPassword);
-    }
-
-    if (avatar_url !== undefined) {
-      query += ', avatar_url = ?';
-      queryParams.push(avatar_url);
-    }
-
-    query += ' WHERE user_id = ?';
-    queryParams.push(id);
-
-    const [result] = await pool.query(query, queryParams);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'User updated successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 // Delete a user and their associated conversations
 const deleteUser = async (req, res) => {
@@ -101,27 +68,6 @@ const deleteUser = async (req, res) => {
 };
 
 
-// Search for a user by username
-const searchUserByUsername = async (req, res) => {
-  const { username } = req.query;
-
-  if (!username) {
-    return res.status(400).json({ error: "Username is required" });
-  }
-
-  try {
-    const [rows] = await pool.query('SELECT user_id FROM users WHERE username = ?', [username]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ user_id: rows[0].user_id });
-  } catch (err) {
-    console.error("Error searching for user by username:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 
 // Add a contact
 const addContact = async (req, res) => {
