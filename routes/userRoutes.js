@@ -21,19 +21,29 @@ router.put('/:id', authenticateToken, updateUser);
 // DELETE user route (modified to delete user and dependencies)
 router.delete('/:id', authenticateToken, async (req, res) => {
     const userId = req.params.id;
+
     try {
+        // Find the user first
+        const user = await db.query('SELECT * FROM users WHERE user_id = ?', [userId]);
+
+        if (user.length === 0) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
         // First delete dependent conversations
         await db.query('DELETE FROM conversations WHERE user_2_id = ?', [userId]);
+        await db.query('DELETE FROM conversations WHERE user_1_id = ?', [userId]);
 
         // Then delete the user
         await db.query('DELETE FROM users WHERE user_id = ?', [userId]);
 
         res.status(200).send({ message: 'User and dependencies deleted successfully' });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting user and dependencies:', error);
         res.status(500).send({ error: 'Failed to delete user' });
     }
 });
+;
 
 // New route for searching by username
 router.get('/search', authenticateToken, searchUserByUsername);
